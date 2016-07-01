@@ -186,10 +186,26 @@ std::string ToString(T value);
 template <typename T>
 T ConvertArgument(const char* value);
 
+// Variant of "ConvertArgument" with default values
+template <typename T>
+T ConvertArgument(const char* value, T default_value) {
+
+  if (value) { return ConvertArgument<T>(value); }
+  return default_value;
+}
+
 // Basic argument parser, matching patterns in the form of "-option value" and "--option value"
 template <typename T>
 T GetArgument(const int argc, char **argv, std::string &help,
               const std::string &option, const T default_value);
+
+// Variant of "GetArgument" with default values
+template <typename T>
+T GetArgument(const int argc, char **argv, std::string &help,
+              const std::string &option, const char* default_string, const T default_value) {
+
+  return GetArgument<T>(argc, argv, help, option, ConvertArgument<T>(default_string, default_value));
+}
 
 // Returns the precision only
 Precision GetPrecision(const int argc, char *argv[],
