@@ -16,14 +16,11 @@ set(CMAKE_USER_MAKE_RULES_OVERRIDE ${CMAKE_CURRENT_SOURCE_DIR}/cmake/c_flag_over
 set(CMAKE_USER_MAKE_RULES_OVERRIDE_CXX ${CMAKE_CURRENT_SOURCE_DIR}/cmake/cxx_flag_overrides.cmake)
 
 # CMake project details
-project("clblast" C CXX)
-set(clblast_VERSION_MAJOR 0)
-set(clblast_VERSION_MINOR 8)
-set(clblast_VERSION_PATCH 0)
+project("clblast_mali" C CXX)
+set(clblast_SOURCE_DIR "${clblast_mali_SOURCE_DIR}")
 
 # Options and their default values
 option(SAMPLES "Enable compilation of the examples" OFF)
-option(TUNERS "Enable compilation of the tuners" OFF)
 option(CLIENTS "Enable compilation of the clients to test and compare performance" OFF)
 option(TESTS "Enable compilation of the correctness tests" OFF)
 
@@ -126,14 +123,12 @@ include_directories(${clblast_SOURCE_DIR}/include ${clblast_SOURCE_DIR}/src ${OP
 # ==================================================================================================
 
 # Sets the supported routines and the used kernels. New routines and kernels should be added here.
-set(KERNELS copy_fast copy_pad transpose_fast transpose_pad xaxpy xdot xger xgemm xgemv)
 set(SAMPLE_PROGRAMS_CPP sgemm)
-set(SAMPLE_PROGRAMS_C sasum dgemv sgemm haxpy cache)
-set(LEVEL1_ROUTINES xswap xscal xcopy xaxpy xdot xdotu xdotc xnrm2 xasum xamax)
-set(LEVEL2_ROUTINES xgemv xgbmv xhemv xhbmv xhpmv xsymv xsbmv xspmv xtrmv xtbmv xtpmv
-                    xger xgeru xgerc xher xhpr xher2 xhpr2 xsyr xspr xsyr2 xspr2)
-set(LEVEL3_ROUTINES xgemm xsymm xhemm xsyrk xherk xsyr2k xher2k xtrmm)
-set(LEVELX_ROUTINES xomatcopy)
+set(SAMPLE_PROGRAMS_C sgemm)
+set(LEVEL1_ROUTINES )
+set(LEVEL2_ROUTINES )
+set(LEVEL3_ROUTINES xgemm )
+set(LEVELX_ROUTINES )
 set(ROUTINES ${LEVEL1_ROUTINES} ${LEVEL2_ROUTINES} ${LEVEL3_ROUTINES} ${LEVELX_ROUTINES})
 set(PRECISIONS 32 64 3232 6464 16)
 
@@ -141,13 +136,6 @@ set(PRECISIONS 32 64 3232 6464 16)
 
 # Gathers all source-files
 set(SOURCES
-  src/database/database.cpp
-  src/routines/common.cpp
-  src/cache.cpp
-  src/clblast.cpp
-  src/clblast_c.cpp
-  src/routine.cpp
-  src/utilities.cpp
 )
 foreach(ROUTINE ${LEVEL1_ROUTINES})
   set(SOURCES ${SOURCES} src/routines/level1/${ROUTINE}.cpp)
@@ -163,14 +151,11 @@ foreach(ROUTINE ${LEVELX_ROUTINES})
 endforeach()
 
 # Creates and links the library
-add_library(clblast SHARED ${SOURCES})
-target_link_libraries(clblast ${OPENCL_LIBRARIES})
+add_library(clblast_mali SHARED ${SOURCES})
+target_link_libraries(clblast_mali clblast ${OPENCL_LIBRARIES})
 
 # Installs the library
-install(TARGETS clblast DESTINATION lib)
-install(FILES include/clblast.h DESTINATION include)
-install(FILES include/clblast_c.h DESTINATION include)
-install(FILES include/clblast_half.h DESTINATION include)
+install(TARGETS clblast_mali DESTINATION lib)
 
 # ==================================================================================================
 
@@ -194,14 +179,14 @@ if(SAMPLES)
   # Adds sample programs (C++)
   foreach(SAMPLE ${SAMPLE_PROGRAMS_CPP})
     add_executable(clblast_sample_${SAMPLE} samples/${SAMPLE}.cpp)
-    target_link_libraries(clblast_sample_${SAMPLE} clblast ${OPENCL_LIBRARIES})
+    target_link_libraries(clblast_sample_${SAMPLE} clblast_mali ${OPENCL_LIBRARIES})
     install(TARGETS clblast_sample_${SAMPLE} DESTINATION bin)
   endforeach()
 
   # Adds sample programs (C)
   foreach(SAMPLE ${SAMPLE_PROGRAMS_C})
     add_executable(clblast_sample_${SAMPLE}_c samples/${SAMPLE}.c)
-    target_link_libraries(clblast_sample_${SAMPLE}_c clblast ${OPENCL_LIBRARIES})
+    target_link_libraries(clblast_sample_${SAMPLE}_c clblast_mali ${OPENCL_LIBRARIES})
     install(TARGETS clblast_sample_${SAMPLE}_c DESTINATION bin)
   endforeach()
 
@@ -219,7 +204,7 @@ if(TUNERS)
   # Adds tuning executables
   foreach(KERNEL ${KERNELS})
     add_executable(clblast_tuner_${KERNEL} src/tuning/kernels/${KERNEL}.cpp)
-    target_link_libraries(clblast_tuner_${KERNEL} clblast ${CLTUNE_LIBRARIES} ${OPENCL_LIBRARIES})
+    target_link_libraries(clblast_tuner_${KERNEL} clblast_mali ${CLTUNE_LIBRARIES} ${OPENCL_LIBRARIES})
     install(TARGETS clblast_tuner_${KERNEL} DESTINATION bin)
   endforeach()
 
@@ -302,7 +287,7 @@ if(CLIENTS)
                    test/performance/routines/levelx/${ROUTINE}.cpp)
   endforeach()
   foreach(ROUTINE ${ROUTINES})
-    target_link_libraries(clblast_client_${ROUTINE} clblast ${REF_LIBRARIES} ${OPENCL_LIBRARIES})
+    target_link_libraries(clblast_client_${ROUTINE} clblast_mali ${REF_LIBRARIES} ${OPENCL_LIBRARIES})
     install(TARGETS clblast_client_${ROUTINE} DESTINATION bin)
   endforeach()
 
@@ -345,7 +330,7 @@ if(TESTS)
                    test/correctness/routines/levelx/${ROUTINE}.cpp)
   endforeach()
   foreach(ROUTINE ${ROUTINES})
-    target_link_libraries(clblast_test_${ROUTINE} clblast ${REF_LIBRARIES} ${OPENCL_LIBRARIES})
+    target_link_libraries(clblast_test_${ROUTINE} clblast_mali ${REF_LIBRARIES} ${OPENCL_LIBRARIES})
     install(TARGETS clblast_test_${ROUTINE} DESTINATION bin)
     add_test(clblast_test_${ROUTINE} clblast_test_${ROUTINE} ${DEVICEPLATFORM})
   endforeach()
