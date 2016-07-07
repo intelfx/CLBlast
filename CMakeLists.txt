@@ -29,6 +29,11 @@ option(TESTS "Enable compilation of the correctness tests" OFF)
 # RPATH settings
 set(CMAKE_MACOSX_RPATH 1)
 
+# Run from CMAKE_INSTALL_PREFIX
+include_directories(${CMAKE_INSTALL_PREFIX}/include)
+link_directories(${CMAKE_INSTALL_PREFIX}/lib)
+set(CMAKE_INSTALL_RPATH_USE_LINK_PATH ON)
+
 # ==================================================================================================
 
 # Compiler-version check (requires at least CMake 2.8.10)
