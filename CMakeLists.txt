@@ -142,6 +142,8 @@ set(PRECISIONS 32 64 3232 6464 16)
 # Gathers all source-files
 set(SOURCES
   src/routines/common.cpp
+  src/database/database.cpp
+  src/routine.cpp
 )
 foreach(ROUTINE ${LEVEL1_ROUTINES})
   set(SOURCES ${SOURCES} src/routines/level1/${ROUTINE}.cpp)
