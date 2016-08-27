@@ -112,6 +112,8 @@ class Event {
   const cl_event& operator()() const { return *event_; }
   cl_event* pointer() { return &(*event_); }
   const cl_event* pointer() const { return &(*event_); }
+
+  cl_event release() { auto e = *event_; *event_ = nullptr; return e; }
  private:
   std::shared_ptr<cl_event> event_;
 };
