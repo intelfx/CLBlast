@@ -304,7 +304,7 @@ StatusCode Xgemm<T>::DoGemm(const Layout layout,
                           finalizeEvent.pointer(), std::vector<Event>{ mmEvent });
         if (ErrorIn(status)) { return status; }
       } else {
-        finalizeEvent() = mmEvent();
+        finalizeEvent = mmEvent;
       }
 
       // Runs the post-processing kernel if needed
@@ -316,7 +316,7 @@ StatusCode Xgemm<T>::DoGemm(const Layout layout,
                                         false, c_do_transpose, false);
         if (ErrorIn(status)) { return status; }
       } else {
-        *event_ = finalizeEvent();
+        *event_ = finalizeEvent.release();
       }
 
       // Successfully finished the computation
