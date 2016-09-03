@@ -282,8 +282,8 @@ __kernel void mali_mm( __global half *const mtx_a,
 
 __kernel void mali_finalize( __global half const *mtx_axb,
                              __global half       *mtx_c,
-                             float                alpha,
-                             float                beta,
+                             half                 alpha,
+                             half                 beta,
                              uint                 COL_MTX_C
                            )
 {
