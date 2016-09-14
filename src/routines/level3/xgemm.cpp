@@ -316,7 +316,9 @@ StatusCode Xgemm<T>::DoGemm(const Layout layout,
                                         false, c_do_transpose, false);
         if (ErrorIn(status)) { return status; }
       } else {
-        *event_ = finalizeEvent.release();
+        if (event_ != nullptr) {
+          *event_ = finalizeEvent.release();
+        }
       }
 
       // Successfully finished the computation
